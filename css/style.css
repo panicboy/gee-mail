@@ -1,0 +1,19 @@
+table {
+    width:100%;
+	}
+table, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+    background-color: transparent;
+	}
+th, thead {
+    background-color: black;
+    color: white;
+	}
+tr {
+	background-color: transparent;
+	color: black;
+	}	
+tbody tr:hover {
+	background: yellow;
+	}

@@ -1,18 +1,204 @@
 <html>
 	<head>
+	<title>A Sasaki GeeMail project</title>
 		<script src="js/mail-generator.js"></script>
 		<link href="css/style.css" rel="stylesheet" media="screen">
+
     <script>
-      window.onload = function(){
+      window.onload = function() {
         // ALL OF YOUR JAVASCRIPT CODE SHOULD GO HERE. 
         // We have to use window.onload so your JavaScript doesn't execute until the page has loaded and all HTML has been downloaded to your browser
+    
         
+    // *********************
+    // ***** variables *****
+    // *********************
+    
+    //Let's initialize stuff!
+    
+    // ---------------------
+	var debugging = false  // turn debugging on/off 
+	
+	// ---------------------
+     var inbox = window.geemails; // inbox container; simplifies syntax  
+     if(debugging) {
+    		console.log(inbox); 
+    		}
+     
+	// ---------------------
+     var refreshInterval = 3000;	// milliseconds between new messages   
+    
+    // ---------------------
+     var messageCount = 0;	// number of messages 
+              
+     
+     // *********************
+     // ***** functions *****
+     // *********************
+    	
+	// >>> Add a new table row
+    // ---------------------
+	function insertRow(newMsg)
+	{
+		if(debugging) {
+    		console.log("insertRow() called"); 
+    		}
+    	if(messageCount < 20) {
+			var table = document.getElementById("myTable"); // table reference
+			var row = table.insertRow(1); 	// add a new row below the table head
+			var cell1 = row.insertCell(0); 	// add cells. this one is sender	
+			var cell2 = row.insertCell(1);	// subject cell
+			var cell3 = row.insertCell(2);	// date cell 
+			row.style = "tr"; 				// assign style to row
+			var cleanDate = convertDate(newMsg.date); 
+			row.msgbody = newMsg.body;		// yep, we're adding 'body' as a row property
+			cell1.innerHTML = newMsg.sender; 	// populate cells with message values
+			cell2.innerHTML = newMsg.subject;
+			cell3.innerHTML = cleanDate; 	// use cleaner date format
+			// >>>> debugging <<<<
+			if(debugging) {
+     			console.log("New row added to table.\nSender: "+newMsg.sender+"\nSubject: "+newMsg.subject+"\nDate: "+cleanDate+"\nMessages: "+messageCount); 
+     			}
+			updateRowCount();		// update message count display
+			addOnClickToRows(); 	// add onclick handler to rows
+			}
+			else {
+        		alert("Total messages: " + messageCount + "\nTest limit reached."); 
+        		clearInterval(timer);	// stop checking for new messages
+        	}
+		}
+	
+// insertRow(getNewMessage()); // do this for new messages
+	
+	// >>> for debugging. shows message object content
+    // ---------------------
+	function parseMsg(myMsg) {
+		if(debugging) {
+    		console.log("parseMsg() called."); 
+    		}
+		alert("Date: "+convertDate(myMsg.date)+ "\nSubject: "+myMsg.subject+"\nSender: "+myMsg.sender+"\nMessages: "+messageCount);
+	}
+	
+	// >>> opens new window and sets its text
+    // ---------------------
+	function makeNewWindow(theText) {
+    	var newMsgWindow = window.open("", "MsgWindow", "toolbar=no, scrollbars=yes, resizable=yes, width=600, height=400"); // make window
+    	newMsgWindow.document.write(theText); // set text of new window
+		}
+	;
+	// >>> converts date to a more readable/sortable format YYYY-MM-DD HH:MM:SS
+    // ---------------------
+	function convertDate(theDate) {
+		if(debugging) {
+    		console.log("convertDate() called."); 
+    		} 
+		var d = theDate.toISOString(); 	// format is YYYY-MM-DDTHH:mm:ss.sssZ
+		return d.substring(0,10)+' '+d.substring(12,19);
+	}
+
+	// count rows in tbody 
+	// ---------------------
+	function countTableRows(){
+		if(debugging) {
+    		console.log("countTableRows() called."); 
+    		} 
+		return document.getElementById("myTable").getElementsByTagName("tbody")[0].getElementsByTagName("tr").length; 
+	}
+	
+	// update message count in table 
+	// ---------------------
+	function updateRowCount(){
+		if(debugging) {
+     		console.log("updateRowCount() called. Initial messageCount = "+messageCount); // >>>> debugging <<<<
+     		}
+		rowCount = countTableRows(); // get count of messages
+		if(debugging) {
+    		console.log("Number of table rows: "+rowCount); 
+    		} 
+	 	document.getElementById("msgCountDisplay").innerHTML = "Messages: "+rowCount; 	// update display
+	 	messageCount = rowCount; 	// update messageCount variable
+	 	// >>>> debugging <<<<
+	 	if(debugging) {
+     		console.log("Updated messageCount = "+messageCount); 
+     		}
+	}
+	
+	// add onClick to rows
+	// ---------------------
+	function addOnClickToRows() 
+	{		
+		// >>>> debugging <<<<
+	if(debugging) {
+    	console.log("addOnClickToRows() called."); 
+    	} 
+     // get rows of table 'myTable'
+	var theRows = document.getElementById('myTable').getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+    	for (i = 0; i < theRows.length; i++) { 	// loop thru each row 
+        	theRows[i].onclick = function() {
+        	makeNewWindow(this.msgbody); 		// the onclick code
+        	}
+		}
+	}
+	
+	// add new row - for clean syntax
+	// ---------------------	
+	function newRow() {
+		insertRow(getNewMessage()); 
+		}
+		
+     // ***** end of functions *****
+     
+     // here we go!  
+     
+     // debugging will log a lot of stuff.
+     debugging = confirm("Press OK to turn debugging on");  
+     // >>>> debugging <<<<
+	 	if(debugging) {
+     		console.log("Debugging = "+debugging); 
+     		}
+     
+     // populate table with values from Gee Mail message stub data 
+     // loop thru inbox
+     for (r = 0 ; r < inbox.length ; r++ ) { 
+		insertRow(inbox[r]);	
+		}
+     if(debugging) {
+     	console.log("table initialized with values from Gee Mail message stub data"); 
+     	}
+     alert("For testing purposes, a new message will be added every 3 seconds until the inbox contains 20 messages.");
+     var timer = setInterval(newRow, refreshInterval); //set timer to fetch new messages
+          
       };
     </script>
+    
+
 	</head>
 	<body>
+	<h2>OMGee Mail</h2>
+	
 		<div class="container" id="main">
-			Build Me!
-		</div>
-	</body>
+		
+<!--  >>>> initialize table with empty rows <<<<     -->
+<table border="1" id="myTable">
+  <col width="100">
+  <col width="200">
+  <col width="80">
+    <thead>
+    	<tr>
+    		<th>Sender</th>
+    		<th>Subject</th>
+    		<th>Date</th>
+    	</tr>
+    </thead>
+    <tfoot>
+         <tr>
+    		<td id="msgCountDisplay">Messages: </td>
+    	</tr>
+    </tfoot>
+    <tbody id="t2">
+        <tr>	
+		</tr>	
+    </tbody>
+</table>
+</body>
 </html>
